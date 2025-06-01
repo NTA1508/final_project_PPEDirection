@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -15,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _fadeAnimation;
   late Animation<double> _bounceAnimation;
   double _progress = 0.0;
+
 
   @override
   void initState() {
@@ -61,14 +64,22 @@ class _SplashScreenState extends State<SplashScreen>
         _progress += 1;
         if (_progress >= 100) {
           timer.cancel();
-          _navigateToHome();
+          _navigateToNextPage();
         }
       });
     });
   }
 
-  void _navigateToHome() {
-    Navigator.of(context).pushReplacementNamed('/login');
+  Future<void> _navigateToNextPage() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (isLoggedIn) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
+
   }
 
   @override

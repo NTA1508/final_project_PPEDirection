@@ -172,8 +172,8 @@ class _SignUpPageState extends State<SignUpPage> {
       isSigningUp = true;
     });
 
-    String username = _firstnameController.text.trim();
-    String fullName = _lastNameController.text.trim();
+    String firstName = _firstnameController.text.trim();
+    String lastName = _lastNameController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
     String age = _ageController.text.trim();
@@ -196,9 +196,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
       final userRef = dbRef.child("users").child(uid);
       await userRef.set({
-        "username": username,
+        "firstName": firstName,
         "email": email,
-        "fullName": fullName,
+        "lastName": lastName,
         "age": age,
         "position": position,
         "building": building,

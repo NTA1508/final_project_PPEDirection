@@ -1,12 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ppe_detection/screens/add_worker.dart';
 import 'package:ppe_detection/widgets/form_container_widget.dart';
 import 'package:ppe_detection/global/common/toast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 import '../../firebase_auth_implementmethod/firebase_auth_services.dart';
 
@@ -19,6 +19,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isSigning = false;
+  bool _rememberMe = false;
   final FirebaseAuthService _auth = FirebaseAuthService();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   TextEditingController _emailController = TextEditingController();
@@ -63,8 +64,21 @@ class _LoginPageState extends State<LoginPage> {
                 hintText: "Password",
                 isPasswordField: true,
               ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _rememberMe,
+                    onChanged: (value) {
+                      setState(() {
+                        _rememberMe = value!;
+                      });
+                    },
+                  ),
+                  Text("Remember me"),
+                ],
+              ),
               SizedBox(
-                height: 30,
+                height: 10,
               ),
               GestureDetector(
                 onTap: () {
@@ -134,48 +148,55 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailController.text;
     String password = _passwordController.text;
 
+    //Tài khoản mặc định
+    if (email == 'admin@gmail.com' && password == '123456') {
+      setState(() {
+        _isSigning = false;
+      });
+
+      if (_rememberMe) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('email', email);
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', false);
+        await prefs.remove('email');
+      }
+
+      showToast(message: "Admin logged in successfully");
+
+      Navigator.pushReplacementNamed(context, "/home");
+      return;
+    }
+
     User? user = await _auth.signInWithEmailAndPassword(email, password);
 
     setState(() {
       _isSigning = false;
     });
 
+
     if (user != null) {
-      showToast(message: "User is successfully signed in");
-      Navigator.pushNamed(context, "/home");
-    } else {
-      showToast(message: "some error occured");
-    }
-  }
+      print("Remember me");
+      print(_rememberMe);
 
-
-  _signInWithGoogle()async{
-
-    final GoogleSignIn _googleSignIn = GoogleSignIn();
-
-    try {
-
-      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
-
-      if(googleSignInAccount != null ){
-        final GoogleSignInAuthentication googleSignInAuthentication = await
-        googleSignInAccount.authentication;
-
-        final AuthCredential credential = GoogleAuthProvider.credential(
-          idToken: googleSignInAuthentication.idToken,
-          accessToken: googleSignInAuthentication.accessToken,
-        );
-
-        await _firebaseAuth.signInWithCredential(credential);
-        Navigator.pushNamed(context, "/home");
+      if (_rememberMe) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('email', email);
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', false);
+        await prefs.remove('email');
       }
+      showToast(message: "User is successfully signed in");
 
-    }catch(e) {
-      showToast(message: "some error occured $e");
+      Navigator.pushReplacementNamed(context, "/home");
     }
-
-
+    else {
+      showToast(message: "Some error occurred");
+    }
   }
-
 
 }

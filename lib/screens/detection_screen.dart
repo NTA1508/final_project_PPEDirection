@@ -7,6 +7,7 @@ import '../components/missing_ppe_alert.dart';
 import '../components/detection_results.dart';
 import '../services/ppe_detection_service.dart';
 import '../models/detection_model.dart';
+import '../widgets/bottom_navbar.dart';
 
 
 class DetectionScreen extends StatefulWidget {
@@ -241,6 +242,29 @@ class _DetectionScreenState extends State<DetectionScreen> {
     super.dispose();
   }
 
+  int _selectedIndex = 1;
+
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) return;
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/notifications');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -379,6 +403,10 @@ class _DetectionScreenState extends State<DetectionScreen> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ppe_detection/screens/add_worker.dart';
+import 'package:ppe_detection/screens/notification_screen.dart';
+import 'package:ppe_detection/screens/profile.dart';
 import 'auth/login.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
@@ -38,7 +40,9 @@ class PPEDetectionApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/detection': (context) => const DetectionScreen(),
         '/login': (context) => LoginPage(),
-        '/signUp': (context) => SignUpPage(),
+        '/add_worker': (context) => SignUpPage(),
+        '/profile': (context) => ProfileScreen(),
+        '/notifications': (context) => NotificationScreen(),
       },
     );
   }
