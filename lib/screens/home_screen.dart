@@ -6,13 +6,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFeff6ff), // blue-50
-      appBar: AppBar(
-        title: const Text('PPE Detection System'),
-        backgroundColor: const Color(0xFF1e40af), // blue-800
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
+      backgroundColor: const Color(0xFFeff6ff),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

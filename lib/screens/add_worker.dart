@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ppe_detection/firebase_auth_implementmethod/firebase_auth_services.dart';
 import 'package:ppe_detection/auth//login.dart';
 import 'package:ppe_detection/widgets/form_container_widget.dart';
 import 'package:ppe_detection/global/common/toast.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -15,28 +17,38 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final FirebaseAuthService _auth = FirebaseAuthService();
 
-  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _firstnameController = TextEditingController();
+  TextEditingController _lastNameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _ageController = TextEditingController();
+  TextEditingController _positionController = TextEditingController();
+  TextEditingController _buildingController = TextEditingController();
+  TextEditingController _floorController = TextEditingController();
 
   bool isSigningUp = false;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _firstnameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _lastNameController.dispose();
+    _ageController.dispose();
+    _positionController.dispose();
+    _buildingController.dispose();
+    _floorController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text("SignUp"),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Column(
@@ -50,8 +62,14 @@ class _SignUpPageState extends State<SignUpPage> {
                 height: 30,
               ),
               FormContainerWidget(
-                controller: _usernameController,
-                hintText: "Username",
+                controller: _firstnameController,
+                hintText: "First name",
+                isPasswordField: false,
+              ),
+              SizedBox(height: 10),
+              FormContainerWidget(
+                controller: _lastNameController,
+                hintText: "Last Name",
                 isPasswordField: false,
               ),
               SizedBox(
@@ -71,8 +89,32 @@ class _SignUpPageState extends State<SignUpPage> {
                 isPasswordField: true,
               ),
               SizedBox(
-                height: 30,
+                height: 10,
               ),
+              FormContainerWidget(
+                controller: _ageController,
+                hintText: "Age",
+                isPasswordField: false,
+              ),
+              SizedBox(height: 10),
+              FormContainerWidget(
+                controller: _positionController,
+                hintText: "Position",
+                isPasswordField: false,
+              ),
+              SizedBox(height: 10),
+              FormContainerWidget(
+                controller: _buildingController,
+                hintText: "Building",
+                isPasswordField: false,
+              ),
+              SizedBox(height: 10),
+              FormContainerWidget(
+                controller: _floorController,
+                hintText: "Floor",
+                isPasswordField: false,
+              ),
+              SizedBox(height: 30),
               GestureDetector(
                 onTap:  (){
                   _signUp();
@@ -126,25 +168,47 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _signUp() async {
-
     setState(() {
       isSigningUp = true;
     });
 
-    String username = _usernameController.text;
-    String email = _emailController.text;
-    String password = _passwordController.text;
+    String username = _firstnameController.text.trim();
+    String fullName = _lastNameController.text.trim();
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+    String age = _ageController.text.trim();
+    String position = _positionController.text.trim();
+    String building = _buildingController.text.trim();
+    String floor = _floorController.text.trim();
 
     User? user = await _auth.signUpWithEmailAndPassword(email, password);
 
     setState(() {
       isSigningUp = false;
     });
+
     if (user != null) {
+      final uid = user.uid;
+      final dbRef = FirebaseDatabase.instanceFor(
+        app: Firebase.app(),
+        databaseURL: 'https://finalprj-92f33-default-rtdb.asia-southeast1.firebasedatabase.app/',
+      ).ref();
+
+      final userRef = dbRef.child("users").child(uid);
+      await userRef.set({
+        "username": username,
+        "email": email,
+        "fullName": fullName,
+        "age": age,
+        "position": position,
+        "building": building,
+        "floor": floor,
+      });
+
       showToast(message: "User is successfully created");
       Navigator.pushNamed(context, "/home");
     } else {
-      showToast(message: "Some error happend");
+      showToast(message: "Some error happened");
     }
   }
 }
